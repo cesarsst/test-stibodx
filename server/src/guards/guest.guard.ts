@@ -6,7 +6,7 @@ import {
 } from "@nestjs/common";
 import { GqlExecutionContext } from "@nestjs/graphql";
 import { JwtService } from "@nestjs/jwt";
-import { Roles } from "./roles";
+import { Roles } from "../config/roles";
 
 @Injectable()
 export class GuestGuard implements CanActivate {

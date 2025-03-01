@@ -21,14 +21,14 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { GqlExecutionContext } from "@nestjs/graphql";
-import { JwtService } from "@nestjs/jwt";
+import { AuthService } from "src/auth/auth.service";
 import { Roles } from "../config/roles";
 
 @Injectable()
-export class AdminGuard implements CanActivate {
-  constructor(private jwtService: JwtService) {}
+export class AuthGuard implements CanActivate {
+  constructor(private authService: AuthService) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const ctx = GqlExecutionContext.create(context);
     const { req } = ctx.getContext();
     const authHeader = req.headers.authorization;
@@ -41,14 +41,10 @@ export class AdminGuard implements CanActivate {
 
     const token = authHeader.split(" ")[1];
     try {
-      const decoded = this.jwtService.verify(token);
-      if (!decoded.userId) {
-        throw new UnauthorizedException(
-          "You do not have permission to access this resource"
-        );
+      const user = await this.authService.getUserFromToken(token);
+      if (user) {
+        req.user = user;
       }
-
-      req.userId = decoded.userId;
       return true;
     } catch (error) {
       throw new UnauthorizedException("Invalid token");

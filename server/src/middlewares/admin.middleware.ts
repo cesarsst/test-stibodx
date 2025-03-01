@@ -7,7 +7,6 @@ export const checkRoleMiddleware: FieldMiddleware = async (
 ) => {
   const { info, context } = ctx;
   const { extensions } = info.parentType.getFields()[info.fieldName];
-  console.log("🚀 ~ info:", info);
 
   const userRole = context.req.user.role; // Acessa user.role do contexto da requisição
   if (userRole !== extensions.role) {

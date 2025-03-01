@@ -3,9 +3,11 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { UserService } from "./user.service";
 import { User } from "./entities/user.entity";
 import { AdminGuard } from "../guards/admin.guard";
+import { AuthGuard } from "../guards/auth.guard";
 import { JwtModule } from "@nestjs/jwt";
 import { JwtService } from "@nestjs/jwt";
 import { UserResolver } from "./user.resolver";
+import { AuthService } from "src/auth/auth.service";
 
 @Module({
   imports: [
@@ -15,6 +17,14 @@ import { UserResolver } from "./user.resolver";
       signOptions: { expiresIn: "60s" },
     }),
   ],
-  providers: [UserService, AdminGuard, JwtService, UserResolver],
+  providers: [
+    UserService,
+    AuthService,
+    AdminGuard,
+    AuthGuard,
+    JwtService,
+    UserResolver,
+  ],
+  exports: [UserService],
 })
 export class UserModule {}

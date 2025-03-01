@@ -3,8 +3,10 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { User } from "./entities/user.entity";
 import { CreateUserInput } from "./dto/create-user.input";
+import { CreateUserResponse } from "./dto/create-user-response";
 import { BadRequestException } from "@nestjs/common";
-
+import * as bycrypt from "bcrypt";
+import { Roles } from "../config/roles";
 @Injectable()
 export class UserService {
   constructor(
@@ -12,15 +14,32 @@ export class UserService {
     private userRepository: Repository<User>
   ) {}
 
-  async create(createUserInput: CreateUserInput): Promise<User> {
+  async create(createUserInput: CreateUserInput): Promise<CreateUserResponse> {
+    const passwordHash = await bycrypt.hash(createUserInput.password, 10);
+    createUserInput.password = passwordHash;
     const user = this.userRepository.create(createUserInput);
-    return await this.userRepository.save(user);
+    await this.userRepository.save(user);
+    const response: CreateUserResponse = {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+    };
+    return response;
   }
 
   async update(
+    ctx: any,
     id: string,
     updateUserInput: Partial<CreateUserInput>
   ): Promise<User> {
+    console.log(ctx.req.user);
+    if (
+      (!ctx.req.user || ctx.req.user.id !== id) &&
+      ctx.req.user.role !== Roles.ADMIN
+    ) {
+      throw new BadRequestException("Unauthorized");
+    }
+
     let user = await this.findOne(id);
     if (Object.keys(updateUserInput).length === 0 || !user) {
       throw new BadRequestException("No fields to update");
@@ -54,5 +73,9 @@ export class UserService {
 
   async findAll(): Promise<User[]> {
     return await this.userRepository.find();
+  }
+
+  async findOneByEmail(email: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { email } });
   }
 }

@@ -6,7 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Roles } from "../../guards/roles";
+import { Roles } from "../../config/roles";
 import { checkRoleMiddleware } from "../../middlewares/admin.middleware";
 
 @ObjectType()
@@ -29,6 +29,12 @@ export class User {
   @Extensions({ role: Roles.ADMIN })
   @Column({ unique: true })
   email: string;
+
+  @Column()
+  password: string;
+
+  @Column({ default: 0 })
+  role: Number;
 
   @Field()
   @CreateDateColumn()

@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { GraphQLModule } from "@nestjs/graphql";
 import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { AuthModule } from "src/auth/auth.module";
 import { UserModule } from "./src/user/user.module";
 import { User } from "./src/user/entities/user.entity";
 import { join } from "path";
@@ -32,6 +33,7 @@ import { join } from "path";
       inject: [ConfigService],
     }),
     UserModule,
+    AuthModule,
   ],
 })
 export class AppModule {}
