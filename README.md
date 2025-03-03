@@ -31,7 +31,7 @@ This project is a NestJS-based GraphQL API for managing users. It includes authe
 
 2. Run Docker Compose
 ```bash
-    docker-compose up
+    docker compose -f 'docker-compose.yml' up -d --build 
 ```
 
 #### Installation dafault
