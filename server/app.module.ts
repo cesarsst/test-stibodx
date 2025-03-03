@@ -6,7 +6,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { AuthModule } from "src/auth/auth.module";
 import { UserModule } from "./src/user/user.module";
 import { join } from "path";
-import { AppDataSource } from "./data-source";
+import { AppDataSource } from "./ormconfig";
 
 @Module({
   imports: [
