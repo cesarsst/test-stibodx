@@ -2,13 +2,18 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { UserResolver } from "../../src/user/user.resolver";
 import { UserService } from "../../src/user/user.service";
 import { AdminGuard } from "../../src/guards/admin.guard";
-import { GuestGuard } from "../../src/guards/guest.guard";
+import { AuthGuard } from "../../src/guards/auth.guard";
 import { CreateUserInput } from "../../src/user/dto/create-user.input";
+import { UpdateUserInput } from "src/user/dto/update-user.input";
+import { CreateUserResponse } from "src/user/dto/create-user-response";
 import { User } from "../../src/user/entities/user.entity";
 
 describe("UserResolver", () => {
   let resolver: UserResolver;
   let service: UserService;
+  let user: User;
+  let user2: User;
+  let context: any;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -28,12 +33,35 @@ describe("UserResolver", () => {
     })
       .overrideGuard(AdminGuard)
       .useValue({ canActivate: jest.fn(() => true) })
-      .overrideGuard(GuestGuard)
+      .overrideGuard(AuthGuard)
       .useValue({ canActivate: jest.fn(() => true) })
       .compile();
 
     resolver = module.get<UserResolver>(UserResolver);
     service = module.get<UserService>(UserService);
+
+    user = {
+      id: "1",
+      firstName: "Test",
+      lastName: "User",
+      email: "test@example.com",
+      password: "password",
+      role: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    user2 = {
+      id: "2",
+      firstName: "Test",
+      lastName: "User",
+      email: "test2@example.com",
+      password: "password",
+      role: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    context = { req: { user: { id: "1" } } };
   });
 
   it("resolver should be defined", () => {
@@ -46,55 +74,47 @@ describe("UserResolver", () => {
         firstName: "Test",
         lastName: "User",
         email: "test@example.com",
+        password: "password",
       };
-      const user: User = {
-        id: "1",
+
+      const createUserResponse: CreateUserResponse = {
         firstName: "Test",
         lastName: "User",
         email: "test@example.com",
-        createdAt: new Date(),
-        updatedAt: new Date(),
       };
-      jest.spyOn(service, "create").mockResolvedValue(user);
 
-      expect(await resolver.createUser(createUserInput)).toEqual(user);
+      jest.spyOn(service, "create").mockResolvedValue(createUserResponse);
+
+      expect(await resolver.createUser(createUserInput)).toEqual(
+        createUserResponse
+      );
       expect(service.create).toHaveBeenCalledWith(createUserInput);
     });
   });
 
   describe("updateUser", () => {
     it("should update a user", async () => {
-      const updateUserInput: CreateUserInput = {
+      const updateUserInput: UpdateUserInput = {
         firstName: "Test",
         lastName: "User",
         email: "test@example.com",
       };
-      const user: User = {
-        id: "1",
-        firstName: "Test",
-        lastName: "User",
-        email: "test@exemple.com",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
 
       jest.spyOn(service, "update").mockResolvedValue(user);
 
-      expect(await resolver.updateUser("1", updateUserInput)).toEqual(user);
-      expect(service.update).toHaveBeenCalledWith("1", updateUserInput);
+      expect(await resolver.updateUser(context, "1", updateUserInput)).toEqual(
+        user
+      );
+      expect(service.update).toHaveBeenCalledWith(
+        context,
+        "1",
+        updateUserInput
+      );
     });
   });
 
   describe("deleteUser", () => {
     it("should delete a user", async () => {
-      const user: User = {
-        id: "1",
-        firstName: "Test",
-        lastName: "User",
-        email: "test@exemple.com",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
       jest.spyOn(service, "remove").mockResolvedValue(user);
 
       expect(await resolver.deleteUser("1")).toEqual(user);
@@ -104,16 +124,7 @@ describe("UserResolver", () => {
 
   describe("users", () => {
     it("should return an array of users", async () => {
-      const users: User[] = [
-        {
-          id: "1",
-          firstName: "Test",
-          lastName: "User",
-          email: "test@exemple.com",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ];
+      const users: User[] = [user, user2];
       jest.spyOn(service, "findAll").mockResolvedValue(users);
 
       expect(await resolver.users()).toEqual(users);
@@ -123,14 +134,6 @@ describe("UserResolver", () => {
 
   describe("user", () => {
     it("should return a user", async () => {
-      const user: User = {
-        id: "1",
-        firstName: "Test",
-        lastName: "User",
-        email: "test@exemple.com",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
       jest.spyOn(service, "findOne").mockResolvedValue(user);
 
       expect(await resolver.user("1")).toEqual(user);
