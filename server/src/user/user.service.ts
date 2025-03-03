@@ -5,7 +5,7 @@ import { User } from "./entities/user.entity";
 import { CreateUserInput } from "./dto/create-user.input";
 import { CreateUserResponse } from "./dto/create-user-response";
 import { BadRequestException } from "@nestjs/common";
-import * as bycrypt from "bcrypt";
+import * as bcrypt from "bcryptjs";
 import { Roles } from "../config/roles";
 @Injectable()
 export class UserService {
@@ -15,7 +15,7 @@ export class UserService {
   ) {}
 
   async create(createUserInput: CreateUserInput): Promise<CreateUserResponse> {
-    const passwordHash = await bycrypt.hash(createUserInput.password, 10);
+    const passwordHash = await bcrypt.hash(createUserInput.password, 10);
     createUserInput.password = passwordHash;
     const user = this.userRepository.create(createUserInput);
     await this.userRepository.save(user);
@@ -32,7 +32,6 @@ export class UserService {
     id: string,
     updateUserInput: Partial<CreateUserInput>
   ): Promise<User> {
-    console.log(ctx.req.user);
     if (
       (!ctx.req.user || ctx.req.user.id !== id) &&
       ctx.req.user.role !== Roles.ADMIN

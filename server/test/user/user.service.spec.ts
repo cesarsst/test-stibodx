@@ -13,7 +13,7 @@ describe("UserService", () => {
   let repository: Repository<User>;
   let user: User;
   let user2: User;
-  const ctx = { user: { id: "1" } };
+  let context: any;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -50,6 +50,8 @@ describe("UserService", () => {
       updatedAt: new Date(),
       role: 0,
     };
+
+    context = { req: { user: { id: "1" } } };
   });
 
   it("service should be defined", () => {
@@ -96,20 +98,20 @@ describe("UserService", () => {
       jest.spyOn(repository, "findOne").mockResolvedValue(user as any);
       jest.spyOn(repository, "save").mockResolvedValue(user as any);
       expect(
-        await service.update(ctx, "1", { firstName: "Updated User" })
+        await service.update(context, "1", { firstName: "Updated User" })
       ).toEqual(user);
     });
 
     it("should throw NotFoundException if user not found", async () => {
       jest.spyOn(repository, "findOne").mockResolvedValue(null);
       await expect(
-        service.update(ctx, "1", { firstName: "Updated User" })
+        service.update(context, "1", { firstName: "Updated User" })
       ).rejects.toThrow(NotFoundException);
     });
 
     it("should throw BadRequestException if no fields to update", async () => {
       jest.spyOn(repository, "findOne").mockResolvedValue(user as any);
-      await expect(service.update(ctx, "1", {})).rejects.toThrow(
+      await expect(service.update(context, "1", {})).rejects.toThrow(
         BadRequestException
       );
     });
@@ -119,7 +121,7 @@ describe("UserService", () => {
       jest.spyOn(repository, "findOne").mockResolvedValueOnce(user2 as any);
 
       await expect(
-        service.update(ctx, "1", { email: "test2@example.com" })
+        service.update(context, "1", { email: "test2@example.com" })
       ).rejects.toThrow(BadRequestException);
     });
   });

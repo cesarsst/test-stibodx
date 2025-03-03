@@ -9,18 +9,22 @@ import { UserService } from "src/user/user.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { User } from "src/user/entities/user.entity";
 import { AuthResolver } from "src/auth/auth.resolver";
+import * as dotenv from "dotenv";
+dotenv.config();
+
+console.log("JWT_SECRET:", process.env.JWT_SECRET);
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     PassportModule.register({ defaultStrategy: "jwt" }),
     JwtModule.register({
-      secret: "yourSecretKey", // ideally use config service instead of hardcoding keys
+      secret: process.env.JWT_SECRET ?? "secret", // replace with your secret key
       signOptions: { expiresIn: "1h" },
     }),
     UserModule, // Ensure UserModule is imported here
   ],
-  providers: [AuthResolver, AuthService, AuthGuard, JwtService, UserService],
+  providers: [AuthResolver, AuthService, AuthGuard, UserService],
   exports: [AuthService, AuthGuard],
 })
 export class AuthModule {}

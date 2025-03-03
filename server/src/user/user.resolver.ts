@@ -5,7 +5,6 @@ import { User } from "./entities/user.entity";
 import { CreateUserInput } from "./dto/create-user.input";
 import { UpdateUserInput } from "./dto/update-user.input";
 import { AdminGuard } from "../guards/admin.guard";
-import { GuestGuard } from "../guards/guest.guard";
 import { AuthGuard } from "../guards/auth.guard";
 import { CreateUserResponse } from "./dto/create-user-response";
 
@@ -31,18 +30,18 @@ export class UserResolver {
   }
 
   @Mutation(() => User)
-  @UseGuards(AdminGuard)
+  @UseGuards(AuthGuard, AdminGuard)
   async deleteUser(@Args("id", { type: () => ID }) id: string) {
     return this.userService.remove(id);
   }
 
-  @UseGuards(GuestGuard)
+  @UseGuards(AuthGuard, AdminGuard)
   @Query(() => [User])
   async users() {
     return this.userService.findAll();
   }
 
-  @UseGuards(GuestGuard)
+  @UseGuards(AuthGuard)
   @Query(() => User)
   async user(@Args("id") id: string) {
     return this.userService.findOne(id);

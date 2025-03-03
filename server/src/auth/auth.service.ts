@@ -1,12 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { AuthResponse } from "./dto/auth-response";
-import { UserService } from "src/user/user.service";
+import { UserService } from "../user/user.service";
 import { AuthRequest } from "./dto/auth-request";
 import { JwtService } from "@nestjs/jwt";
 import { User } from "src/user/entities/user.entity";
-
 import { BadRequestException } from "@nestjs/common";
-import * as bycrypt from "bcrypt";
+import * as bcrypt from "bcryptjs";
 
 @Injectable()
 export class AuthService {
@@ -17,16 +16,13 @@ export class AuthService {
 
   // Add your methods and logic here
   async login(authInput: AuthRequest): Promise<AuthResponse> {
-    console.log("🚀 ~ AuthService ~ login ~ authInput:", authInput);
     const user = await this.userService.findOneByEmail(authInput.email);
-    console.log("🚀 ~ AuthService ~ login ~ user:", user);
     if (!user) {
       throw new BadRequestException("Invalid credentials");
     }
-
-    const isPasswordValid = await bycrypt.compare(
-      user.password,
-      authInput.password
+    const isPasswordValid = await bcrypt.compare(
+      authInput.password,
+      user.password
     );
 
     if (!isPasswordValid) {

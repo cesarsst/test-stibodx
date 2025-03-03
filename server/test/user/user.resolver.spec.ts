@@ -2,18 +2,18 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { UserResolver } from "../../src/user/user.resolver";
 import { UserService } from "../../src/user/user.service";
 import { AdminGuard } from "../../src/guards/admin.guard";
-import { GuestGuard } from "../../src/guards/guest.guard";
+import { AuthGuard } from "../../src/guards/auth.guard";
 import { CreateUserInput } from "../../src/user/dto/create-user.input";
 import { UpdateUserInput } from "src/user/dto/update-user.input";
 import { CreateUserResponse } from "src/user/dto/create-user-response";
 import { User } from "../../src/user/entities/user.entity";
-import * as bcrypt from "bcrypt";
 
 describe("UserResolver", () => {
   let resolver: UserResolver;
   let service: UserService;
   let user: User;
   let user2: User;
+  let context: any;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -33,7 +33,7 @@ describe("UserResolver", () => {
     })
       .overrideGuard(AdminGuard)
       .useValue({ canActivate: jest.fn(() => true) })
-      .overrideGuard(GuestGuard)
+      .overrideGuard(AuthGuard)
       .useValue({ canActivate: jest.fn(() => true) })
       .compile();
 
@@ -61,6 +61,7 @@ describe("UserResolver", () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
+    context = { req: { user: { id: "1" } } };
   });
 
   it("resolver should be defined", () => {
@@ -93,8 +94,6 @@ describe("UserResolver", () => {
 
   describe("updateUser", () => {
     it("should update a user", async () => {
-      const ctx = { user: { id: "1" } };
-
       const updateUserInput: UpdateUserInput = {
         firstName: "Test",
         lastName: "User",
@@ -103,10 +102,14 @@ describe("UserResolver", () => {
 
       jest.spyOn(service, "update").mockResolvedValue(user);
 
-      expect(await resolver.updateUser(ctx, "1", updateUserInput)).toEqual(
+      expect(await resolver.updateUser(context, "1", updateUserInput)).toEqual(
         user
       );
-      expect(service.update).toHaveBeenCalledWith("1", updateUserInput);
+      expect(service.update).toHaveBeenCalledWith(
+        context,
+        "1",
+        updateUserInput
+      );
     });
   });
 
