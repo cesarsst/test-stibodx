@@ -14,8 +14,8 @@ This project is a NestJS-based GraphQL API for managing users. It includes authe
 
 ### Prerequisites
 
-- Node.js (>= 14.x)
-- npm (>= 6.x)
+- Node.js (>= 22.x)
+- npm (>= 10.x)
 - PostgreSQL
 
 
@@ -25,7 +25,7 @@ This project is a NestJS-based GraphQL API for managing users. It includes authe
 
 1. Clone the repository:
 ```bash
-    git clone https://github.com/your-username/test-stibodx.git
+    git clone https://github.com/cesarsst/test-stibodx.git
     cd test-stibodx
 ```
 
@@ -38,7 +38,7 @@ This project is a NestJS-based GraphQL API for managing users. It includes authe
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/your-username/test-stibodx.git
+    git clone https://github.com/cesarsst/test-stibodx.git
     cd test-stibodx/server
     ```
 
@@ -64,7 +64,7 @@ This project is a NestJS-based GraphQL API for managing users. It includes authe
     npm run migration:run
     ```
 
-> **Note**: Note: If you are in a development environment, you can set `synchronize: true` in `./src/config/data-source.ts` to synchronize changes made to the database table structure, it should not be used in production. This first migration will create the `user` table and create a user admin with email equal `admin@admin.com` and `admin1234` password. 
+> **Note**: Note: If you are in a development environment, you can set `synchronize: true` in `./ormconfig.ts` to synchronize changes made to the database table structure, it should not be used in production. This first migration will create the `user` table and create a user admin with email equal `admin@admin.com` and `admin123` password. 
 
 2. Start the application in development mode:
     ```bash
@@ -96,10 +96,22 @@ npm run test
 
 ### Authentication and Authorization
 
+
 The API uses JWT-based authentication to secure endpoints. Users must be authenticated to access certain functionalities. The following guards are used to enforce authorization:
 
 - **AuthGuard**: Ensures that the user is authenticated.
 - **AdminGuard**: Ensures that the user has admin privileges.
+
+### Setting Authorization Header
+To access protected endpoints, you need to set the `Authorization` header in your requests. The header should include a valid JWT token obtained after logging in. The format of the header is as follows:
+
+```
+{
+    "Authorization": "Bearer <TOKEN>"
+}
+```
+
+Replace `<TOKEN>` with the actual JWT token. This token is required for endpoints that need authentication and authorization, ensuring that only authorized users can access certain functionalities.
 
 ### User Management
 
@@ -109,7 +121,7 @@ The API provides the following user management functionalities:
 - **Update User**: Allows updating an existing user. Requires the user to be authenticated.
 - **Delete User**: Allows deleting a user. Requires the user to be authenticated and have admin privileges.
 - **Get All Users**: Allows retrieving a list of all users. Requires the user to be authenticated and have admin privileges.
-- **Get User by ID**: Allows retrieving a user by their ID. No authentication is required.
+- **Get User by ID**: Allows retrieving a user by their ID. Requires the user to be authenticated and have admin privileges
 
 ### Authorization and Permission Restrictions
 

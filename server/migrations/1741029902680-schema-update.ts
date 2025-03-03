@@ -30,7 +30,7 @@ export class SchemaUpdate1741029902680 implements MigrationInterface {
 
       await queryRunner.query(`
         INSERT INTO "user" ("firstName", "lastName", "email", "password", "role", "createdAt", "updatedAt")
-        VALUES ('Admin', 'User', 'admin@admin.com', '${hashedPassword}', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+        VALUES ('Admin', 'User', 'admin@admin.com', '${hashedPassword}', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
       `);
     }
   }

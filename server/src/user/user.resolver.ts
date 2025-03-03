@@ -41,7 +41,7 @@ export class UserResolver {
     return this.userService.findAll();
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, AdminGuard)
   @Query(() => User)
   async user(@Args("id") id: string) {
     return this.userService.findOne(id);

@@ -1,8 +1,8 @@
 # Use the official Node.js image as the base image
-FROM node:14
+FROM node:22
 
 # Set the working directory
-WORKDIR /usr/src/app
+WORKDIR /server
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
