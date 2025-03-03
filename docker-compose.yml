@@ -1,0 +1,48 @@
+
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - my_network
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: server
+    working_dir: /server
+    volumes:
+      - ./server:/server
+    ports:
+      - "3000:3000"
+    environment:
+      SERVER_PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: admin
+      DB_DATABASE: postgres
+      JWT_SECRET: secret_JWT_SECRET
+    depends_on:
+      - postgres
+    networks:
+      - my_network
+
+networks:
+  my_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
